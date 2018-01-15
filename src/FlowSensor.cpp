@@ -6,8 +6,6 @@
 #include "../test/Mockduino.h"
 #endif
 
-#define MIN_LOW_TIME_MILLIS (1)
-
 using ReadPin = FlowSensor::ReadPin;
 using Counter = FlowSensor::Counter;
 
