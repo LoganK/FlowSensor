@@ -49,6 +49,7 @@ protected:
   // Used for the noise filtering logic.
   const int _minEventMicro;
   volatile unsigned long _lastEventMicro;
+  volatile bool _pinCounted;
   volatile int _pin;
 
   const int _kFactor;

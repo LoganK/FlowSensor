@@ -19,27 +19,40 @@ FlowSensor(
    _minEventMicro(1000000 / (maxHz * 2)),
    // Always register the first tick().
    _lastEventMicro(0),
+   _pinCounted(true),
    _pin(HIGH),
    _kFactor(kFactor),
    _readPin(readPin)
 {
 }
+
 void FlowSensor::
 tick()
 {
-  // Read the pin before the time filter to avoid inadvertantly ignoring the
-  // start of a transition.
-  int pin = _readPin();
+  // Only register the event once called past the end of the window. This means
+  // the count can be off by one for an extended duration, but it's such a
+  // small amount I'm not worried. If you care, call `tick()` manually before
+  // reading out the current flow.
+  auto eventMicro = micros();
+  auto windowClosed = (eventMicro - _lastEventMicro) >= _minEventMicro;
+  if (!_pinCounted && windowClosed) {
+    _pinCounted = true;
+
+    // Count the rising edge.
+    if (_pin == HIGH) {
+      _count++;
+    }
+  }
+
+  auto pin = _readPin();
   if (_pin == pin) { return; }
   _pin = pin;
-  
-  unsigned long eventMicro = micros();
-  if (eventMicro - _lastEventMicro < _minEventMicro) { return; }
   _lastEventMicro = eventMicro;
 
-  if (pin == HIGH) {
-    _count++;
-  }
+  // If the event came in while the filter window was open, it simply cancels
+  // out the last event. We can signal that by saying the most recent
+  // transition was already counted.
+  _pinCounted = !windowClosed;
 }
   
 Counter FlowSensor::
