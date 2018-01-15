@@ -21,7 +21,7 @@ public:
   FlowSensor(
     ReadPin readPin,
 	  int     kFactor = 5500,
-    int     maxHz = 2000);
+    int     maxHz = 2010);
 	
   /* Call readPin and record the result. Usually attached to an interrupt. */
   void tick();
